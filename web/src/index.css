@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+.page-header {
+    font-size: 18px;
+}
