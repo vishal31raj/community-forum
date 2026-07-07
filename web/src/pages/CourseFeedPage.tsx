@@ -1,73 +1,127 @@
 import { useParams } from "react-router-dom";
 import { useState } from "react";
+import axios from "axios";
 
+import MainLayout from "../components/MainLayout";
 import PostCard from "../components/PostCard";
+import Button from "../components/ui/Button";
 
 import { useCourseFeed } from "../hooks/useCourseFeed";
 import { useSavePost } from "../hooks/useSavePost";
 import { useUnsavePost } from "../hooks/useUnsavePost";
+import { useDeletePost } from "../hooks/useDeletePost";
+import { useUser } from "../hooks/useUser";
+
 import type { Post } from "../types/post";
-import axios from "axios";
+import Pagination from "../components/Pagination";
 
 export default function CourseFeedPage() {
+  const { user } = useUser();
   const { courseId } = useParams();
 
-  const [page] = useState(1);
+  const [page, setPage] = useState(1);
 
-  const { data, isLoading, isError, error } = useCourseFeed(
-    Number(courseId),
-    page,
-    10,
-  );
+  const {
+    data = {
+      course: {
+        title: "",
+      },
+      page: 1,
+      pageSize: 10,
+      total: 0,
+      totalPages: 0,
+      data: [],
+    },
+    isLoading,
+    isError,
+    error,
+  } = useCourseFeed(Number(courseId), page, 10);
 
   const saveMutation = useSavePost();
   const unsaveMutation = useUnsavePost();
+  const deleteMutation = useDeletePost();
 
-  if (isLoading) return <p>Loading...</p>;
+  const [loadingPostId, setLoadingPostId] = useState<number | null>(null);
 
-  if (isError) {
-    let message = "Something went wrong.";
-
-    if (axios.isAxiosError(error)) {
-      message = error.response?.data?.message ?? message;
+  const handleDelete = (postId: number) => {
+    if (!window.confirm("Delete this post?")) {
+      return;
     }
 
-    return (
-      <div>
-        <h1>Course Feed</h1>
+    deleteMutation.mutate(postId);
+  };
 
-        <p style={{ color: "red" }}>{message}</p>
-      </div>
-    );
+  const handleSaveToggle = (post: Post) => {
+    setLoadingPostId(post.id);
+
+    const mutation = post.hasSaved ? unsaveMutation : saveMutation;
+
+    mutation.mutate(post.id, {
+      onSettled: () => setLoadingPostId(null),
+    });
+  };
+
+  let content;
+
+  if (isLoading) {
+    content = <p>Loading...</p>;
+  } else if (isError) {
+    const message = axios.isAxiosError(error)
+      ? (error.response?.data?.message ?? "Something went wrong.")
+      : "Something went wrong.";
+
+    content = <p className="text-red-600">{message}</p>;
+  } else if (data?.data.length === 0) {
+    content = <p className="text-gray-500">No posts found.</p>;
+  } else {
+    content = data?.data.map((post) => (
+      <PostCard
+        key={post.id}
+        post={post}
+        action={
+          user?.role === "moderator" ? (
+            <Button
+              loading={deleteMutation.isPending}
+              className="bg-red-600 hover:bg-red-700"
+              onClick={() => handleDelete(post.id)}
+            >
+              Delete
+            </Button>
+          ) : (
+            <Button
+              loading={loadingPostId === post.id}
+              onClick={() => handleSaveToggle(post)}
+            >
+              {post.hasSaved ? "Unsave" : "Save"}
+            </Button>
+          )
+        }
+      />
+    ));
   }
 
   return (
-    <div>
-      <h1 className="page-header">Course Feed</h1>
+    <MainLayout>
+      {!isLoading && !isError && data && (
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            {data.course.title}
+          </h1>
 
-      {data?.data.map((post: Post) => (
-        <PostCard
-          key={post.id}
-          post={post}
-          action={
-            post.hasSaved ? (
-              <button
-                onClick={() => unsaveMutation.mutate(post.id)}
-                disabled={unsaveMutation.isPending}
-              >
-                Unsave
-              </button>
-            ) : (
-              <button
-                onClick={() => saveMutation.mutate(post.id)}
-                disabled={saveMutation.isPending}
-              >
-                Save
-              </button>
-            )
-          }
+          <p className="mt-1 text-gray-500">
+            {data.total} {data.total === 1 ? "post" : "posts"}
+          </p>
+        </div>
+      )}
+
+      {content}
+      {!isLoading && !isError && (
+        <Pagination
+          page={page}
+          totalPages={data.totalPages}
+          onPageChange={setPage}
         />
-      ))}
-    </div>
+      )}
+    </MainLayout>
   );
 }

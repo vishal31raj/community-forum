@@ -1,6 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 
-import { getCourseFeedService } from "../services/post.service";
+import {
+  deletePostService,
+  getCourseFeedService,
+} from "../services/post.service";
 
 export async function getCourseFeed(
   req: Request,
@@ -24,5 +27,24 @@ export async function getCourseFeed(
     res.status(200).json(result);
   } catch (error) {
     next(error);
+  }
+}
+
+export async function deletePost(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const { postId } = req.params;
+
+    await deletePostService(req.user!.role, Number(postId));
+
+    res.json({
+      success: true,
+      message: "Post deleted successfully",
+    });
+  } catch (err) {
+    next(err);
   }
 }

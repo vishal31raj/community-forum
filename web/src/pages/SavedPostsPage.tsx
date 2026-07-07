@@ -1,47 +1,63 @@
+import { useState } from "react";
 import axios from "axios";
+
+import MainLayout from "../components/MainLayout";
 import PostCard from "../components/PostCard";
+import Button from "../components/ui/Button";
 
 import { useSavedPosts } from "../hooks/useSavedPosts";
 import { useUnsavePost } from "../hooks/useUnsavePost";
 import type { Post } from "../types/post";
 
 export default function SavedPostsPage() {
-  const { data, isLoading, isError, error } = useSavedPosts(1, 10);
+  const { data = [], isLoading, isError, error } = useSavedPosts(1, 10);
 
   const unsaveMutation = useUnsavePost();
 
-  if (isLoading) return <p>Loading...</p>;
+  const [loadingPostId, setLoadingPostId] = useState<number | null>(null);
 
-  if (isError) {
-    let message = "Something went wrong.";
+  const handleUnsave = (postId: number) => {
+    setLoadingPostId(postId);
 
-    if (axios.isAxiosError(error)) {
-      message = error.response?.data?.message ?? message;
-    }
+    unsaveMutation.mutate(postId, {
+      onSettled: () => setLoadingPostId(null),
+    });
+  };
 
-    return <p>{message}</p>;
+  let content;
+
+  if (isLoading) {
+    content = <p>Loading...</p>;
+  } else if (isError) {
+    const message = axios.isAxiosError(error)
+      ? (error.response?.data?.message ?? "Something went wrong.")
+      : "Something went wrong.";
+
+    content = <p className="text-red-600">{message}</p>;
+  } else if (data.length === 0) {
+    content = <p className="text-gray-500">No saved posts.</p>;
+  } else {
+    content = data.map((post: Post) => (
+      <PostCard
+        key={post.id}
+        post={post}
+        action={
+          <Button
+            loading={loadingPostId === post.id}
+            onClick={() => handleUnsave(post.id)}
+          >
+            Unsave
+          </Button>
+        }
+      />
+    ));
   }
 
   return (
-    <div>
-      <h1>Saved Posts</h1>
+    <MainLayout>
+      <h1 className="mb-8 text-3xl font-bold">Saved Posts</h1>
 
-      {data && !data.length && <p>No saved posts.</p>}
-
-      {data?.map((post: Post) => (
-        <PostCard
-          key={post.id}
-          post={post}
-          action={
-            <button
-              onClick={() => unsaveMutation.mutate(post.id)}
-              disabled={unsaveMutation.isPending}
-            >
-              Unsave
-            </button>
-          }
-        />
-      ))}
-    </div>
+      {content}
+    </MainLayout>
   );
 }

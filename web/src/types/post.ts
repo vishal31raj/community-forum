@@ -1,3 +1,5 @@
+import type { Course } from "./course";
+
 export interface Post {
   id: number;
   title: string;
@@ -8,6 +10,7 @@ export interface Post {
 }
 
 export interface PaginatedResponse<T> {
+  course: Course;
   page: number;
   pageSize: number;
   total: number;

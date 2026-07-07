@@ -1,26 +1,24 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { unsavePost } from "../api/saved-post.api";
 import toast from "react-hot-toast";
 
-export function useUnsavePost() {
+import { deletePost } from "../api/post.api";
+
+export function useDeletePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: unsavePost,
+    mutationFn: deletePost,
 
     onSuccess: () => {
-      toast.success("Post removed from saved posts");
+      toast.success("Post deleted");
 
       queryClient.invalidateQueries({
         queryKey: ["course-feed"],
       });
-
-      queryClient.invalidateQueries({
-        queryKey: ["saved-posts"],
-      });
     },
+
     onError: (error: any) => {
-      toast.error(error.response?.data?.message ?? "Failed to remove post");
+      toast.error(error.response?.data?.message ?? "Failed to delete post");
     },
   });
 }

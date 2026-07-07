@@ -33,3 +33,11 @@ export const getSavedPostsSchema = z.object({
 
   body: z.object({}),
 });
+
+export const deletePostSchema = z.object({
+  body: z.object({}),
+  query: z.object({}),
+  params: z.object({
+    postId: z.coerce.number().int().positive(),
+  }),
+});

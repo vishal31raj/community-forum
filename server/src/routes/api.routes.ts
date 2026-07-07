@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { getCourseFeed } from "../controllers/post.controller";
+import { deletePost, getCourseFeed } from "../controllers/post.controller";
 
 import {
   getSavedPosts,
@@ -12,6 +12,7 @@ import { authenticate } from "../middleware/auth.middleware";
 import { validate } from "../middleware/validation.middleware";
 
 import {
+  deletePostSchema,
   getCourseFeedSchema,
   getSavedPostsSchema,
   savePostSchema,
@@ -38,5 +39,7 @@ router.post("/posts/:postId/save", validate(savePostSchema), savePost);
 router.delete("/posts/:postId/save", validate(savePostSchema), unsavePost);
 
 router.get("/me/saved-posts", validate(getSavedPostsSchema), getSavedPosts);
+
+router.delete("/posts/:postId", validate(deletePostSchema), deletePost);
 
 export default router;

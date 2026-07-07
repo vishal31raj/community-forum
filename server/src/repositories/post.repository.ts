@@ -72,3 +72,12 @@ export async function getCourseFeed(
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 }
+
+export async function deletePost(postId: number) {
+  const [post] = await db
+    .delete(posts)
+    .where(eq(posts.id, postId))
+    .returning();
+
+  return post;
+}

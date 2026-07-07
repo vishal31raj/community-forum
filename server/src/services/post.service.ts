@@ -2,7 +2,12 @@ import { findCourseById } from "../repositories/course.repository";
 
 import { isUserEnrolled } from "../repositories/enrollment.repository";
 
-import { countPosts, getCourseFeed } from "../repositories/post.repository";
+import {
+  countPosts,
+  deletePost,
+  findPostById,
+  getCourseFeed,
+} from "../repositories/post.repository";
 import { httpError } from "../utils/http-error";
 
 export async function getCourseFeedService(
@@ -22,7 +27,7 @@ export async function getCourseFeedService(
     const enrolled = await isUserEnrolled(userId, courseId);
 
     if (!enrolled) {
-      throw httpError(403, "You are not enrolled in this course");
+      throw httpError(403, "Not enrolled in this course");
     }
   }
 
@@ -32,10 +37,25 @@ export async function getCourseFeedService(
   ]);
 
   return {
+    course,
     page,
     pageSize,
     total,
     totalPages: Math.ceil(total / pageSize),
     data: posts,
   };
+}
+
+export async function deletePostService(userRole: string, postId: number) {
+  if (userRole !== "moderator") {
+    throw new Error("Only moderators can delete posts");
+  }
+
+  const post = await findPostById(postId);
+
+  if (!post) {
+    throw new Error("Post not found");
+  }
+
+  await deletePost(postId);
 }
