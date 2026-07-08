@@ -15,6 +15,7 @@ import { useDeletePost } from "../hooks/useDeletePost";
 import { MdBookmark, MdBookmarkBorder } from "react-icons/md";
 import { AiFillLike, AiOutlineDelete, AiOutlineLike } from "react-icons/ai";
 import { FaRegCommentDots } from "react-icons/fa";
+import { t } from "i18next";
 
 export default function PostDetailsPage() {
   const { postId } = useParams();
@@ -96,14 +97,14 @@ export default function PostDetailsPage() {
         to={`/feed`}
         className="mb-6 inline-block text-blue-600 hover:underline"
       >
-        ← Back
+        ← {t("back")}
       </Link>
 
       <div className="mb-8 rounded-xl bg-white p-6 shadow">
         <h1 className="mb-2 text-3xl font-bold text-gray-900">{post.title}</h1>
 
         <div className="mb-6 flex items-center justify-between text-sm text-gray-500">
-          <span>By {post.author.name}</span>
+          <span>{t("by")} {post.author.name}</span>
 
           <span>{new Date(post.createdAt).toLocaleString()}</span>
         </div>
@@ -156,7 +157,7 @@ export default function PostDetailsPage() {
       {user?.role === "student" && <CreateCommentForm postId={id} />}
 
       <div className="mt-8">
-        <h2 className="mb-4 text-2xl font-semibold">Comments</h2>
+        <h2 className="mb-4 text-2xl font-semibold">{t("comments")}</h2>
 
         <CommentList postId={id} />
       </div>

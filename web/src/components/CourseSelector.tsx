@@ -1,6 +1,7 @@
 import type { ChangeEvent } from "react";
 
 import type { Course } from "../types/course";
+import { t } from "i18next";
 
 interface Props {
   courses: Course[];
@@ -16,7 +17,7 @@ export default function CourseSelector({ courses, value, onChange }: Props) {
   return (
     <div className="mb-6">
       <label className="mb-2 block text-sm font-medium text-gray-700">
-        Select Course
+        {t("select_course")}
       </label>
 
       <select
@@ -24,7 +25,7 @@ export default function CourseSelector({ courses, value, onChange }: Props) {
         onChange={handleChange}
         className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
       >
-        <option value="">Choose a course</option>
+        <option value="">{t("choose_a_course")}</option>
 
         {courses.map((course) => (
           <option key={course.id} value={course.id}>

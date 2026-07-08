@@ -1,3 +1,5 @@
+import { useTranslation } from "react-i18next";
+
 interface Props {
   page: number;
   totalPages: number;
@@ -5,6 +7,8 @@ interface Props {
 }
 
 export default function Pagination({ page, totalPages, onPageChange }: Props) {
+  const { t } = useTranslation();
+
   return (
     <div className="mt-8 flex items-center justify-center gap-2">
       <button
@@ -12,7 +16,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
         disabled={page === 1}
         className="rounded-md border px-3 py-2 text-sm transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Previous
+        {t("previous")}
       </button>
 
       {Array.from({ length: totalPages }, (_, index) => {
@@ -38,7 +42,7 @@ export default function Pagination({ page, totalPages, onPageChange }: Props) {
         disabled={page === totalPages}
         className="rounded-md border px-3 py-2 text-sm transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Next
+        {t("next")}
       </button>
     </div>
   );

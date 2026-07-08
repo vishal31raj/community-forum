@@ -5,6 +5,7 @@ import CommentCard, { type Comment } from "./CommentCard";
 import { useComments } from "../hooks/useComments";
 import { useDeleteComment } from "../hooks/useDeleteComment";
 import { useUser } from "../hooks/useUser";
+import { t } from "i18next";
 
 interface Props {
   postId: number;
@@ -45,7 +46,9 @@ export default function CommentList({ postId }: Props) {
   }
 
   if (data.data.length === 0) {
-    return <p className="text-gray-500">No comments yet.</p>;
+    return (
+      <p className="text-gray-500">{t("no_comments")}</p>
+    );
   }
 
   return (

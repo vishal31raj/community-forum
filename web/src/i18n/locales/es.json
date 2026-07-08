@@ -1,0 +1,29 @@
+{
+  "community_forum": "Foro de la Comunidad",
+  "feed": "Publicaciones",
+  "savedPosts": "Publicaciones guardadas",
+  "createPost": "Crear publicación",
+  "student": "Estudiante",
+  "moderator": "Moderador",
+  "previous": "Anterior",
+  "next": "Siguiente",
+  "no_posts_found": "No se encontraron publicaciones",
+  "no_saved_posts": "No hay publicaciones guardadas",
+
+  "select_course": "Seleccionar curso",
+  "choose_a_course": "Elige un curso",
+  "title": "Título",
+  "write_here": "Escribe aquí",
+
+  "post_one": "{{count}} publicación",
+  "post_other": "{{count}} publicaciones",
+
+  "save_one": "{{count}} guardado",
+  "save_other": "{{count}} guardados",
+
+  "back": "Volver",
+  "no_comments": "No hay comentarios",
+  "by": "por",
+  "comment": "Comentar",
+  "comments": "Comentarios"
+}

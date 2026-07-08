@@ -5,6 +5,7 @@ import CourseSelector from "./CourseSelector";
 
 import { useCourses } from "../hooks/useCourses";
 import { useCreatePost } from "../hooks/useCreatePost";
+import { t } from "i18next";
 
 interface Props {
   onSuccess: () => void;
@@ -54,7 +55,7 @@ export default function CreatePostForm({ onSuccess }: Props) {
       <input
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Title"
+        placeholder={t("title")}
         className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
       />
 
@@ -62,11 +63,11 @@ export default function CreatePostForm({ onSuccess }: Props) {
         value={body}
         onChange={(e) => setBody(e.target.value)}
         rows={5}
-        placeholder="Write here..."
+        placeholder={t("write_here")}
         className="mb-3 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
       />
 
-      <Button disabled={mutation.isPending || !courseId}>Create Post</Button>
+      <Button disabled={mutation.isPending || !courseId}>{t("createPost")}</Button>
     </form>
   );
 }

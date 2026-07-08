@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-
+import { useTranslation } from "react-i18next";
 import { useUser } from "../hooks/useUser";
 import type { User } from "../types/user";
 
@@ -9,6 +9,7 @@ interface Props {
 }
 
 export default function Header({ users, onUserChange }: Props) {
+  const { t, i18n } = useTranslation();
   const { user } = useUser();
   const location = useLocation();
 
@@ -21,7 +22,7 @@ export default function Header({ users, onUserChange }: Props) {
           to="/"
           className="text-2xl font-bold tracking-tight text-blue-600"
         >
-          Community Forum
+          {t("community_forum")}
         </Link>
 
         <nav className="flex items-center gap-6">
@@ -33,7 +34,7 @@ export default function Header({ users, onUserChange }: Props) {
                 : "text-gray-600 hover:text-blue-600"
             }`}
           >
-            Feed
+            {t("feed")}
           </Link>
 
           {user ? (
@@ -45,7 +46,7 @@ export default function Header({ users, onUserChange }: Props) {
                   : "text-gray-600 hover:text-blue-600"
               }`}
             >
-              Saved Posts
+              {t("savedPosts")}
             </Link>
           ) : (
             <span
@@ -56,6 +57,14 @@ export default function Header({ users, onUserChange }: Props) {
             </span>
           )}
         </nav>
+        <select
+          value={i18n.language}
+          onChange={(e) => i18n.changeLanguage(e.target.value)}
+          className="text-sm focus:outline-none"
+        >
+          <option value="en">🇺🇸 EN</option>
+          <option value="es">🇪🇸 ES</option>
+        </select>
         <div className="flex items-center gap-3">
           <select
             value={user?.id ?? ""}

@@ -1,0 +1,29 @@
+{
+  "community_forum": "Community Forum",
+  "feed": "Feed",
+  "savedPosts": "Saved Posts",
+  "createPost": "Create Post",
+  "student": "Student",
+  "moderator": "Moderator",
+  "previous": "Previous",
+  "next": "Next",
+  "no_posts_found": "No posts found",
+  "no_saved_posts": "No saved posts",
+
+  "select_course": "Select course",
+  "choose_a_course": "Choose a course",
+  "title": "Title",
+  "write_here": "Write here",
+
+  "post_one": "{{count}} post",
+  "post_other": "{{count}} posts",
+
+  "save_one": "{{count}} save",
+  "save_other": "{{count}} saves",
+
+  "back": "Back",
+  "no_comments": "No comments",
+  "by": "by",
+  "comment": "Comment",
+  "comments": "Comments"
+}

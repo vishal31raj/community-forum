@@ -15,10 +15,12 @@ import type { Post } from "../types/post";
 import Pagination from "../components/Pagination";
 import Modal from "../components/ui/Modal";
 import CreatePostForm from "../components/CreatePostForm";
-import { MdBookmark, MdBookmarkBorder, MdDeleteOutline } from "react-icons/md";
+import { MdBookmark, MdBookmarkBorder } from "react-icons/md";
 import { AiOutlineDelete } from "react-icons/ai";
+import { useTranslation } from "react-i18next";
 
 export default function FeedPage() {
+  const { t } = useTranslation();
   const { user } = useUser();
 
   const [page, setPage] = useState(1);
@@ -76,7 +78,7 @@ export default function FeedPage() {
 
     content = <p className="text-red-600">{message}</p>;
   } else if (data?.data.length === 0) {
-    content = <p className="text-gray-500">No posts found.</p>;
+    content = <p className="text-gray-500">{t("no_posts_found")}</p>;
   } else {
     content = (
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
@@ -117,14 +119,14 @@ export default function FeedPage() {
     <MainLayout>
       {!isLoading && !isError && data && (
         <div className="flex justify-between mb-8">
-          <div>{data?.data.length > 0 && <p>{data?.data.length} posts</p>}</div>
+          <div>{data?.data.length > 0 && <p>{t("post", { count: data?.data.length })}</p>}</div>
           {user?.role === "student" && (
             <div>
               <Button
                 className="bg-blue-600 hover:bg-blue-700"
                 onClick={() => setShowCreateModal(true)}
               >
-                Create Post
+                {t("createPost")}
               </Button>
             </div>
           )}
@@ -132,7 +134,7 @@ export default function FeedPage() {
       )}
 
       {content}
-      {!isLoading && !isError && data?.data.length > 10 && (
+      {!isLoading && !isError && (
         <Pagination
           page={page}
           totalPages={data.totalPages}
@@ -142,7 +144,7 @@ export default function FeedPage() {
 
       <Modal
         open={showCreateModal}
-        title="Create Post"
+        title={t("createPost")}
         onClose={() => setShowCreateModal(false)}
       >
         <CreatePostForm onSuccess={() => setShowCreateModal(false)} />
