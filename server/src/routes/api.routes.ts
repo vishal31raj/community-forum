@@ -3,7 +3,7 @@ import { Router } from "express";
 import {
   createPost,
   deletePost,
-  getCourseFeed,
+  getFeed,
   getPost,
 } from "../controllers/post.controller";
 
@@ -19,7 +19,7 @@ import { validate } from "../middleware/validation.middleware";
 import {
   createPostSchema,
   deletePostSchema,
-  getCourseFeedSchema,
+  getFeedSchema,
   getPostSchema,
   getSavedPostsSchema,
   savePostSchema,
@@ -31,15 +31,11 @@ const router = Router();
 
 router.get("/users", getUsers);
 
-router.get("/courses", getCourses);
-
 router.use(authenticate);
 
-router.get(
-  "/courses/:courseId/posts",
-  validate(getCourseFeedSchema),
-  getCourseFeed,
-);
+router.get("/courses", getCourses);
+
+router.get("/feed", validate(getFeedSchema), getFeed);
 
 router.post("/posts/create", validate(createPostSchema), createPost);
 

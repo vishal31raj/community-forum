@@ -1,4 +1,3 @@
-import { useParams } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 
@@ -6,7 +5,7 @@ import MainLayout from "../components/MainLayout";
 import PostCard from "../components/PostCard";
 import Button from "../components/ui/Button";
 
-import { useCourseFeed } from "../hooks/useCourseFeed";
+import { useFeed } from "../hooks/useFeed";
 import { useSavePost } from "../hooks/useSavePost";
 import { useUnsavePost } from "../hooks/useUnsavePost";
 import { useDeletePost } from "../hooks/useDeletePost";
@@ -17,9 +16,8 @@ import Pagination from "../components/Pagination";
 import Modal from "../components/ui/Modal";
 import CreatePostForm from "../components/CreatePostForm";
 
-export default function CourseFeedPage() {
+export default function FeedPage() {
   const { user } = useUser();
-  const { courseId } = useParams();
 
   const [page, setPage] = useState(1);
 
@@ -39,7 +37,7 @@ export default function CourseFeedPage() {
     isLoading,
     isError,
     error,
-  } = useCourseFeed(Number(courseId), page, 10);
+  } = useFeed(page, 10);
 
   const saveMutation = useSavePost();
   const unsaveMutation = useUnsavePost();
@@ -112,16 +110,7 @@ export default function CourseFeedPage() {
     <MainLayout>
       {!isLoading && !isError && data && (
         <div className="flex justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              {data.course.title}
-            </h1>
-
-            <p className="mt-1 text-gray-500">
-              {data.total} {data.total === 1 ? "post" : "posts"}
-            </p>
-          </div>
-
+          {data?.data.length > 0 && <p>{data?.data.length} posts</p>}
           {user?.role === "student" && (
             <div>
               <Button
@@ -149,10 +138,7 @@ export default function CourseFeedPage() {
         title="Create Post"
         onClose={() => setShowCreateModal(false)}
       >
-        <CreatePostForm
-          courseId={Number(courseId)}
-          onSuccess={() => setShowCreateModal(false)}
-        />
+        <CreatePostForm onSuccess={() => setShowCreateModal(false)} />
       </Modal>
     </MainLayout>
   );

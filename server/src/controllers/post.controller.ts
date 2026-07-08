@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import {
   createPostService,
   deletePostService,
-  getCourseFeedService,
+  getFeedService,
   getPostService,
 } from "../services/post.service";
 
@@ -26,21 +26,16 @@ export async function createPost(
   }
 }
 
-export async function getCourseFeed(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) {
+export async function getFeed(req: Request, res: Response, next: NextFunction) {
   try {
     const { courseId } = req.validated!.params as { courseId: number };
 
     const page = Number(req.query.page ?? 1);
     const pageSize = Number(req.query.pageSize ?? 10);
 
-    const result = await getCourseFeedService(
+    const result = await getFeedService(
       req.user!.id,
       req.user!.role,
-      courseId,
       page,
       pageSize,
     );

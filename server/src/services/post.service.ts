@@ -2,11 +2,11 @@ import { findCourseById } from "../repositories/course.repository";
 import { isUserEnrolled } from "../repositories/enrollment.repository";
 
 import {
-  countPosts,
+  countFeedPosts,
   createPost,
   deletePost,
   findPostById,
-  getCourseFeed,
+  getFeed,
   getPostById,
 } from "../repositories/post.repository";
 
@@ -34,7 +34,7 @@ export async function createPostService(
   const enrolled = await isUserEnrolled(userId, data.courseId);
 
   if (!enrolled) {
-    throw httpError(403, "You are not enrolled in this course");
+    throw httpError(403, "Not enrolled in this course");
   }
 
   const post = await createPost({
@@ -50,44 +50,17 @@ export async function createPostService(
   return post;
 }
 
-export async function getCourseFeedService(
-  userId: number,
-  userRole: string,
-  courseId: number,
-  page = 1,
-  pageSize = 10,
-) {
-  const course = await findCourseById(courseId);
-
-  if (!course) {
-    throw httpError(404, "Course not found");
-  }
-
-  if (userRole === "student") {
-    const enrolled = await isUserEnrolled(userId, courseId);
-
-    if (!enrolled) {
-      throw httpError(403, "Not enrolled in this course");
-    }
-  }
-
+export async function getFeedService(userId: number, role: string, page = 1, pageSize = 10) {
   const [posts, total] = await Promise.all([
-    getCourseFeed(courseId, userId, page, pageSize),
-
-    countPosts(courseId),
+    getFeed(userId, role, page, pageSize),
+    countFeedPosts(userId),
   ]);
 
   return {
-    course,
-
     page,
-
     pageSize,
-
     total,
-
     totalPages: Math.ceil(total / pageSize),
-
     data: posts,
   };
 }

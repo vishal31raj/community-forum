@@ -2,9 +2,11 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 
 import { deletePost } from "../api/post.api";
+import { useUser } from "./useUser";
 
 export function useDeletePost() {
   const queryClient = useQueryClient();
+  const { user } = useUser();
 
   return useMutation({
     mutationFn: deletePost,
@@ -13,7 +15,7 @@ export function useDeletePost() {
       toast.success("Post deleted");
 
       queryClient.invalidateQueries({
-        queryKey: ["course-feed"],
+        queryKey: ["feed", user?.id],
       });
     },
 

@@ -7,7 +7,7 @@ export async function getCourses(
   next: NextFunction,
 ) {
   try {
-    const courses = await getCoursesService();
+    const courses = await getCoursesService(req.user!.id, req.user!.role);
 
     res.json(courses);
   } catch (error) {

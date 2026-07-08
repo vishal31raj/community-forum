@@ -13,6 +13,10 @@ export interface Post {
     id: Number;
     name: String;
   };
+  course: {
+    id: Number;
+    title: String;
+  };
 }
 
 export interface PaginatedResponse<T> {

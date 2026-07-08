@@ -16,6 +16,9 @@ export default function PostCard({ post, action }: Props) {
     <Card className="mb-5 p-6">
       <div className="flex items-start justify-between gap-4">
         <Link to={`/posts/${post.id}`} className="flex-1 cursor-pointer">
+          <p className="text-md font-semibold text-gray-500">
+            {post.course.title}
+          </p>
           <h2 className="text-xl font-semibold text-gray-900 hover:text-blue-600">
             {post.title}
           </h2>

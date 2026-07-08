@@ -11,12 +11,11 @@ export async function getCourses(): Promise<Course[]> {
   return data;
 }
 
-export async function getCourseFeed(
-  courseId: number,
+export async function getFeed(
   page = 1,
   pageSize = 10,
 ): Promise<PaginatedResponse<Post>> {
-  const { data } = await api.get(`/courses/${courseId}/posts`, {
+  const { data } = await api.get(`/feed`, {
     params: {
       page,
       pageSize,

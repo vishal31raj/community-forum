@@ -62,10 +62,10 @@ export default function PostDetailsPage() {
   return (
     <MainLayout>
       <Link
-        to={`/courses/${post.course.id}`}
+        to={`/feed`}
         className="mb-6 inline-block text-blue-600 hover:underline"
       >
-        ← Back to {post.course.title}
+        ← Back
       </Link>
 
       <div className="mb-8 rounded-xl bg-white p-6 shadow">

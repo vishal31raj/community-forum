@@ -8,6 +8,7 @@ import { postLikes } from "../db/schema/post-like.schema";
 import { comments } from "../db/schema/comment.schema";
 import { users } from "../db/schema/user.schema";
 import { courses } from "../db/schema/course.schema";
+import { enrollments } from "../db/schema/enrollment.schema";
 
 export async function createPost(data: {
   userId: number;
@@ -51,24 +52,31 @@ export async function getPostsByCourse(
     .offset((page - 1) * pageSize);
 }
 
-export async function countPosts(courseId: number) {
+export async function countFeedPosts(userId: number) {
   const [result] = await db
     .select({
       count: count(),
     })
     .from(posts)
-    .where(and(eq(posts.courseId, courseId), isNull(posts.deletedAt)));
+    .innerJoin(
+      enrollments,
+      and(
+        eq(enrollments.courseId, posts.courseId),
+        eq(enrollments.userId, userId),
+      ),
+    )
+    .where(isNull(posts.deletedAt));
 
   return result.count;
 }
 
-export async function getCourseFeed(
-  courseId: number,
+export async function getFeed(
   userId: number,
+  userRole: string,
   page: number,
   pageSize: number,
 ) {
-  return db
+  let query = db
     .select({
       id: posts.id,
 
@@ -81,6 +89,11 @@ export async function getCourseFeed(
       author: {
         id: users.id,
         name: users.name,
+      },
+
+      course: {
+        id: courses.id,
+        title: courses.title,
       },
 
       likesCount: sql<number>`
@@ -132,7 +145,20 @@ export async function getCourseFeed(
     })
     .from(posts)
     .innerJoin(users, eq(users.id, posts.userId))
-    .where(and(eq(posts.courseId, courseId), isNull(posts.deletedAt)))
+    .innerJoin(courses, eq(courses.id, posts.courseId));
+
+  if (userRole === "student") {
+    query = query.innerJoin(
+      enrollments,
+      and(
+        eq(enrollments.courseId, posts.courseId),
+        eq(enrollments.userId, userId),
+      ),
+    );
+  }
+
+  return query
+    .where(isNull(posts.deletedAt))
     .orderBy(desc(posts.createdAt))
     .limit(pageSize)
     .offset((page - 1) * pageSize);

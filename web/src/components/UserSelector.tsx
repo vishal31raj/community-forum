@@ -28,8 +28,6 @@ export default function UserSelector({
         onChange={handleChange}
         className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
       >
-        <option value="">Choose a user</option>
-
         {users.map((user) => (
           <option key={user.id} value={user.id}>
             {user.name} ({user.role})

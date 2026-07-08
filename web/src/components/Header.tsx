@@ -1,8 +1,14 @@
 import { Link, useLocation } from "react-router-dom";
 
 import { useUser } from "../hooks/useUser";
+import type { User } from "../types/user";
 
-export default function Header() {
+interface Props {
+  users: User[];
+  onUserChange: (userId: number) => void;
+}
+
+export default function Header({ users, onUserChange }: Props) {
   const { user } = useUser();
   const location = useLocation();
 
@@ -27,7 +33,7 @@ export default function Header() {
                 : "text-gray-600 hover:text-blue-600"
             }`}
           >
-            Home
+            Feed
           </Link>
 
           {user ? (
@@ -50,24 +56,29 @@ export default function Header() {
             </span>
           )}
         </nav>
+        <div className="flex items-center gap-3">
+          <select
+            value={user?.id ?? ""}
+            onChange={(e) => onUserChange(Number(e.target.value))}
+            className="text-sm focus:outline-none"
+          >
+            {users.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name}
+              </option>
+            ))}
+          </select>
 
-        <div className="min-w-[180px] text-right">
-          {user ? (
-            <div className="flex gap-2 items-center justify-end">
-              <p className="font-medium text-gray-900">{user.name}</p>
-
-              <span
-                className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize ${
-                  user.role === "moderator"
-                    ? "bg-purple-100 text-purple-700"
-                    : "bg-green-100 text-green-700"
-                }`}
-              >
-                {user.role}
-              </span>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">No user selected</p>
+          {user && (
+            <span
+              className={`rounded-full px-2 py-1 text-xs font-medium capitalize ${
+                user.role === "moderator"
+                  ? "bg-purple-100 text-purple-700"
+                  : "bg-green-100 text-green-700"
+              }`}
+            >
+              {user.role}
+            </span>
           )}
         </div>
       </div>

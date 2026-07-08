@@ -1,12 +1,11 @@
 import { z } from "zod";
 
-export const getCourseFeedSchema = z.object({
-  params: z.object({
-    courseId: z.coerce.number().int().positive(),
-  }),
+export const getFeedSchema = z.object({
+  params: z.object({}),
 
   query: z.object({
     page: z.coerce.number().int().positive().default(1),
+
     pageSize: z.coerce.number().int().positive().max(100).default(10),
   }),
 
@@ -61,4 +60,3 @@ export const getPostSchema = z.object({
 
   body: z.object({}),
 });
-

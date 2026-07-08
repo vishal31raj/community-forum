@@ -1,9 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createPost } from "../api/post.api";
 import toast from "react-hot-toast";
 
-export function useCreatePost(courseId: number) {
+import { createPost } from "../api/post.api";
+import { useUser } from "./useUser";
+
+export function useCreatePost() {
   const queryClient = useQueryClient();
+  const { user } = useUser();
 
   return useMutation({
     mutationFn: createPost,
@@ -12,7 +15,7 @@ export function useCreatePost(courseId: number) {
       toast.success("Post created");
 
       queryClient.invalidateQueries({
-        queryKey: ["course-feed", courseId],
+        queryKey: ["feed", user?.id],
       });
     },
 

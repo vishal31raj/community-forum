@@ -1,22 +1,23 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useUser } from "./useUser";
 import { unsavePost } from "../api/saved-post.api";
 import toast from "react-hot-toast";
 
 export function useUnsavePost() {
   const queryClient = useQueryClient();
+  const { user } = useUser();
 
   return useMutation({
     mutationFn: unsavePost,
 
     onSuccess: () => {
-      toast.success("Post removed from saved posts");
-
+      toast.success("Post unsaved");
       queryClient.invalidateQueries({
-        queryKey: ["course-feed"],
+        queryKey: ["feed", user?.id],
       });
 
       queryClient.invalidateQueries({
-        queryKey: ["saved-posts"],
+        queryKey: ["saved-posts", user?.id],
       });
     },
     onError: (error: any) => {

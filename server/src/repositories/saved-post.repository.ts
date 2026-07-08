@@ -4,6 +4,7 @@ import { db } from "../config/database";
 import { savedPosts } from "../db/schema/saved-post.schema";
 import { posts } from "../db/schema/post.schema";
 import { users } from "../db/schema/user.schema";
+import { courses } from "../db/schema/course.schema";
 
 export async function findSavedPost(userId: number, postId: number) {
   const [savedPost] = await db
@@ -96,6 +97,11 @@ export async function getSavedPosts(
         name: users.name,
       },
 
+      course: {
+        id: courses.id,
+        title: courses.title,
+      },
+
       likesCount: sql<number>`
         (
           SELECT COUNT(*)
@@ -137,6 +143,7 @@ export async function getSavedPosts(
     .from(savedPosts)
     .innerJoin(posts, eq(savedPosts.postId, posts.id))
     .innerJoin(users, eq(posts.userId, users.id))
+    .innerJoin(courses, eq(posts.courseId, courses.id))
     .where(
       and(
         eq(savedPosts.userId, userId),
