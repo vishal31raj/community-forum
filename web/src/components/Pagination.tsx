@@ -5,10 +5,6 @@ interface Props {
 }
 
 export default function Pagination({ page, totalPages, onPageChange }: Props) {
-//   if (totalPages <= 1) {
-//     return null;
-//   }
-
   return (
     <div className="mt-8 flex items-center justify-center gap-2">
       <button

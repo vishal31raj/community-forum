@@ -13,6 +13,7 @@ export function useLikePost(postId: number) {
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
       });
+      toast.success("Post liked");
     },
 
     onError: () => {

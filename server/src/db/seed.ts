@@ -23,7 +23,7 @@ const db = drizzle(pool);
 
 async function seed() {
   try {
-    console.log("🌱 Seeding database...");
+    console.log("Seeding database...");
 
     // Delete order (child -> parent)
 
@@ -41,7 +41,7 @@ async function seed() {
 
     await db.delete(users);
 
-    console.log("🗑 Existing data removed");
+    console.log("Existing data removed");
 
     // USERS
 
@@ -230,11 +230,9 @@ async function seed() {
       },
     ]);
 
-    console.log("✅ Database seeded successfully");
+    console.log("Database seeded successfully");
   } catch (error) {
-    console.error("❌ Seed failed");
-
-    console.error(error);
+    console.error("Seed failed", error);
 
     process.exit(1);
   } finally {

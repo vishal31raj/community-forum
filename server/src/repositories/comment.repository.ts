@@ -54,7 +54,6 @@ export async function createComment(data: {
   userId: number;
   body: string;
 }) {
-  console.log(data);
   const [comment] = await db.insert(comments).values(data).returning();
 
   return comment;

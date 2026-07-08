@@ -1,4 +1,4 @@
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 import MainLayout from "../components/MainLayout";
@@ -9,10 +9,17 @@ import { usePost } from "../hooks/usePost";
 import { useUser } from "../hooks/useUser";
 import { useLikePost } from "../hooks/useLikePost";
 import { useUnlikePost } from "../hooks/useUnlikePost";
+import { useSavePost } from "../hooks/useSavePost";
+import { useUnsavePost } from "../hooks/useUnsavePost";
+import { useDeletePost } from "../hooks/useDeletePost";
+import { MdBookmark, MdBookmarkBorder } from "react-icons/md";
+import { AiFillLike, AiOutlineDelete, AiOutlineLike } from "react-icons/ai";
+import { FaRegCommentDots } from "react-icons/fa";
 
 export default function PostDetailsPage() {
   const { postId } = useParams();
   const { user } = useUser();
+  const navigate = useNavigate();
 
   const id = Number(postId);
 
@@ -22,6 +29,30 @@ export default function PostDetailsPage() {
   const unlikeMutation = useUnlikePost(id);
 
   const loading = likeMutation.isPending || unlikeMutation.isPending;
+
+  const saveMutation = useSavePost();
+  const unsaveMutation = useUnsavePost();
+  const deleteMutation = useDeletePost();
+
+  const saveLoading = saveMutation.isPending || unsaveMutation.isPending;
+
+  function handleSaveToggle() {
+    if (post.hasSaved) {
+      unsaveMutation.mutate(post.id);
+    } else {
+      saveMutation.mutate(post.id);
+    }
+  }
+
+  function handleDelete() {
+    if (!window.confirm("Delete this post?")) return;
+
+    deleteMutation.mutate(post.id, {
+      onSuccess: () => {
+        navigate("/feed");
+      },
+    });
+  }
 
   function handleLikeToggle() {
     if (post.hasLiked) {
@@ -78,23 +109,47 @@ export default function PostDetailsPage() {
         </div>
 
         <p className="whitespace-pre-wrap text-gray-700">{post.body}</p>
-
-        <div className="mt-6 flex gap-6 border-t pt-4 text-sm text-gray-500">
-          <span>💾 {post.savesCount} Saves</span>
-
+        <div className="mt-6 flex items-center gap-8 border-t pt-4 text-gray-600">
           <button
-            onClick={handleLikeToggle}
-            disabled={loading}
-            className={`font-medium transition ${
-              post.hasLiked
-                ? "text-red-600"
-                : "text-gray-500 hover:text-red-600"
-            }`}
+            type="button"
+            onClick={handleSaveToggle}
+            disabled={saveLoading}
+            className="flex items-center gap-2 transition hover:text-blue-600 disabled:opacity-50"
           >
-            {post.hasLiked ? "❤️" : "🤍"} {post.likesCount} Likes
+            {post.hasSaved ? (
+              <MdBookmark className="text-2xl text-blue-600" />
+            ) : (
+              <MdBookmarkBorder className="text-2xl" />
+            )}
+            <span>{post.savesCount}</span>
           </button>
 
-          <span>💬 {post.commentsCount} Comments</span>
+          <button
+            type="button"
+            onClick={handleLikeToggle}
+            disabled={loading}
+            className="flex items-center gap-2 transition hover:text-blue-600 disabled:opacity-50"
+          >
+            {post.hasLiked ? (
+              <AiFillLike className="text-2xl text-blue-600" />
+            ) : (
+              <AiOutlineLike className="text-2xl" />
+            )}
+            <span>{post.likesCount}</span>
+          </button>
+
+          <div className="flex items-center gap-2">
+            <FaRegCommentDots className="text-xl" />
+            <span>{post.commentsCount}</span>
+          </div>
+
+          {(user?.role === "moderator" || user?.id === post.author.id) && (
+            <div className="ml-auto">
+              <button onClick={handleDelete}>
+                <AiOutlineDelete className="text-xl text-red-600 hover:cursor-pointer" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

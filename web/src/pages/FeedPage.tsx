@@ -15,6 +15,8 @@ import type { Post } from "../types/post";
 import Pagination from "../components/Pagination";
 import Modal from "../components/ui/Modal";
 import CreatePostForm from "../components/CreatePostForm";
+import { MdBookmark, MdBookmarkBorder, MdDeleteOutline } from "react-icons/md";
+import { AiOutlineDelete } from "react-icons/ai";
 
 export default function FeedPage() {
   const { user } = useUser();
@@ -77,28 +79,33 @@ export default function FeedPage() {
     content = <p className="text-gray-500">No posts found.</p>;
   } else {
     content = (
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {data.data.map((post) => (
           <PostCard
             key={post.id}
             post={post}
-            action={
-              user?.role === "moderator" || user?.id === post.author.id ? (
-                <Button
-                  loading={deleteMutation.isPending}
-                  className="bg-red-600 hover:bg-red-700"
-                  onClick={() => handleDelete(post.id)}
-                >
-                  Delete
-                </Button>
-              ) : (
-                <Button
-                  loading={loadingPostId === post.id}
+            saveAction={
+              user?.role !== "moderator" ? (
+                <button
+                  type="button"
                   onClick={() => handleSaveToggle(post)}
+                  disabled={loadingPostId === post.id}
+                  className="disabled:opacity-50"
                 >
-                  {post.hasSaved ? "Unsave" : "Save"}
-                </Button>
-              )
+                  {post.hasSaved ? (
+                    <MdBookmark className="text-xl text-blue-600 hover:cursor-pointer" />
+                  ) : (
+                    <MdBookmarkBorder className="text-xl text-gray-500 hover:cursor-pointer" />
+                  )}
+                </button>
+              ) : null
+            }
+            deleteAction={
+              user?.role === "moderator" || user?.id === post.author.id ? (
+                <button onClick={() => handleDelete(post.id)}>
+                  <AiOutlineDelete className="text-xl text-red-600 hover:cursor-pointer" />
+                </button>
+              ) : null
             }
           />
         ))}
@@ -110,7 +117,7 @@ export default function FeedPage() {
     <MainLayout>
       {!isLoading && !isError && data && (
         <div className="flex justify-between mb-8">
-          {data?.data.length > 0 && <p>{data?.data.length} posts</p>}
+          <div>{data?.data.length > 0 && <p>{data?.data.length} posts</p>}</div>
           {user?.role === "student" && (
             <div>
               <Button
@@ -125,7 +132,7 @@ export default function FeedPage() {
       )}
 
       {content}
-      {!isLoading && !isError && (
+      {!isLoading && !isError && data?.data.length > 10 && (
         <Pagination
           page={page}
           totalPages={data.totalPages}

@@ -33,11 +33,10 @@ async function main() {
       migrationsFolder,
     });
 
-    console.log("✅ Migration completed");
+    console.log("Migration completed");
   } catch (error) {
-    console.error("❌ Migration failed");
+    console.error("Migration failed", error);
 
-    console.error(error);
 
     process.exit(1);
   } finally {

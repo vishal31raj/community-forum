@@ -8,6 +8,7 @@ import Button from "../components/ui/Button";
 import { useSavedPosts } from "../hooks/useSavedPosts";
 import { useUnsavePost } from "../hooks/useUnsavePost";
 import type { Post } from "../types/post";
+import { MdBookmark } from "react-icons/md";
 
 export default function SavedPostsPage() {
   const { data = [], isLoading, isError, error } = useSavedPosts(1, 10);
@@ -38,18 +39,21 @@ export default function SavedPostsPage() {
     content = <p className="text-gray-500">No saved posts.</p>;
   } else {
     content = (
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {data.map((post: Post) => (
           <PostCard
             key={post.id}
             post={post}
-            action={
-              <Button
-                loading={loadingPostId === post.id}
+            saveAction={
+              <button
+                type="button"
                 onClick={() => handleUnsave(post.id)}
+                disabled={loadingPostId === post.id}
+                className="disabled:opacity-50"
+                aria-label="Unsave post"
               >
-                Unsave
-              </Button>
+                <MdBookmark className="text-xl text-blue-600 hover:text-blue-700" />
+              </button>
             }
           />
         ))}

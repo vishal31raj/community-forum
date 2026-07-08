@@ -13,6 +13,7 @@ export function useUnlikePost(postId: number) {
       queryClient.invalidateQueries({
         queryKey: ["post", postId],
       });
+      toast.success("Like removed");
     },
 
     onError: () => {

@@ -29,14 +29,16 @@ export default function CreateCommentForm({ postId }: Props) {
   return (
     <form onSubmit={onSubmit} className="mb-6 rounded-xl bg-white p-4 shadow">
       <textarea
-        rows={4}
+        rows={2}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Write a comment..."
         className="mb-4 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
       />
 
-      <Button loading={mutation.isPending}>Comment</Button>
+      <div className="flex justify-end">
+        <Button loading={mutation.isPending}>Comment</Button>
+      </div>
     </form>
   );
 }

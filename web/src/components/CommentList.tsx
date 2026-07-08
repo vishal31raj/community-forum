@@ -57,7 +57,6 @@ export default function CommentList({ postId }: Props) {
           canDelete={
             user?.role === "moderator" || user?.id === comment.author.id
           }
-          deleting={deleteMutation.isPending}
           onDelete={() => handleDelete(comment.id)}
         />
       ))}

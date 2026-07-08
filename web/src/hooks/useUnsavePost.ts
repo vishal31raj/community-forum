@@ -10,8 +10,7 @@ export function useUnsavePost() {
   return useMutation({
     mutationFn: unsavePost,
 
-    onSuccess: () => {
-      toast.success("Post unsaved");
+    onSuccess: (_, postId) => {
       queryClient.invalidateQueries({
         queryKey: ["feed", user?.id],
       });
@@ -19,6 +18,12 @@ export function useUnsavePost() {
       queryClient.invalidateQueries({
         queryKey: ["saved-posts", user?.id],
       });
+
+      queryClient.invalidateQueries({
+        queryKey: ["post", postId],
+      });
+
+      toast.success("Post unsaved");
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message ?? "Failed to remove post");
