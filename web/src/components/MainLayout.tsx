@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function MainLayout({ children }: Props) {
-  const { user, setUser } = useUser();
+  const { setUser } = useUser();
   const { data: users = [] } = useUsers();
 
   const handleUserChange = (userId: number) => {
