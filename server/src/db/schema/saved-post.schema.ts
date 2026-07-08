@@ -4,6 +4,7 @@ import {
   pgTable,
   serial,
   timestamp,
+  unique,
 } from "drizzle-orm/pg-core";
 
 import { posts } from "./post.schema";
@@ -31,6 +32,8 @@ export const savedPosts = pgTable(
     deletedAt: timestamp("deleted_at"),
   },
   (table) => ({
+    uniqueSave: unique().on(table.userId, table.postId),
+
     userIdx: index("saved_posts_user_idx").on(table.userId),
 
     postIdx: index("saved_posts_post_idx").on(table.postId),

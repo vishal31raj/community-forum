@@ -1,6 +1,11 @@
 import { Router } from "express";
 
-import { deletePost, getCourseFeed } from "../controllers/post.controller";
+import {
+  createPost,
+  deletePost,
+  getCourseFeed,
+  getPost,
+} from "../controllers/post.controller";
 
 import {
   getSavedPosts,
@@ -12,8 +17,10 @@ import { authenticate } from "../middleware/auth.middleware";
 import { validate } from "../middleware/validation.middleware";
 
 import {
+  createPostSchema,
   deletePostSchema,
   getCourseFeedSchema,
+  getPostSchema,
   getSavedPostsSchema,
   savePostSchema,
 } from "../validators/post.validator";
@@ -34,6 +41,8 @@ router.get(
   getCourseFeed,
 );
 
+router.post("/posts/create", validate(createPostSchema), createPost);
+
 router.post("/posts/:postId/save", validate(savePostSchema), savePost);
 
 router.delete("/posts/:postId/save", validate(savePostSchema), unsavePost);
@@ -41,5 +50,7 @@ router.delete("/posts/:postId/save", validate(savePostSchema), unsavePost);
 router.get("/me/saved-posts", validate(getSavedPostsSchema), getSavedPosts);
 
 router.delete("/posts/:postId", validate(deletePostSchema), deletePost);
+
+router.get("/posts/:postId", validate(getPostSchema), getPost);
 
 export default router;

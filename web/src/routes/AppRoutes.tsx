@@ -5,6 +5,7 @@ import CourseFeedPage from "../pages/CourseFeedPage";
 import SavedPostsPage from "../pages/SavedPostsPage";
 import RequireUser from "../components/RequireUser";
 import NotFoundPage from "../pages/NotFoundPage";
+import PostDetailsPage from "../pages/PostDetailsPage";
 
 export default function AppRoutes() {
   return (
@@ -26,6 +27,15 @@ export default function AppRoutes() {
           element={
             <RequireUser>
               <SavedPostsPage />
+            </RequireUser>
+          }
+        />
+
+        <Route
+          path="/posts/:postId"
+          element={
+            <RequireUser>
+              <PostDetailsPage />
             </RequireUser>
           }
         />

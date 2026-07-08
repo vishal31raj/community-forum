@@ -5,9 +5,14 @@ import { courses } from "./schema/course.schema";
 import { enrollments } from "./schema/enrollment.schema";
 import { posts } from "./schema/post.schema";
 import { savedPosts } from "./schema/saved-post.schema";
+import { comments } from "./schema/comment.schema";
+import { postLikes } from "./schema/post-like.schema";
 
 export const usersRelations = relations(users, ({ many }) => ({
   enrollments: many(enrollments),
+  posts: many(posts),
+  comments: many(comments),
+  likes: many(postLikes),
   savedPosts: many(savedPosts),
 }));
 
@@ -34,6 +39,15 @@ export const postsRelations = relations(posts, ({ one, many }) => ({
     references: [courses.id],
   }),
 
+  author: one(users, {
+    fields: [posts.userId],
+    references: [users.id],
+  }),
+
+  likes: many(postLikes),
+
+  comments: many(comments),
+
   savedPosts: many(savedPosts),
 }));
 
@@ -46,5 +60,29 @@ export const savedPostsRelations = relations(savedPosts, ({ one }) => ({
   post: one(posts, {
     fields: [savedPosts.postId],
     references: [posts.id],
+  }),
+}));
+
+export const postLikesRelations = relations(postLikes, ({ one }) => ({
+  post: one(posts, {
+    fields: [postLikes.postId],
+    references: [posts.id],
+  }),
+
+  user: one(users, {
+    fields: [postLikes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const commentsRelations = relations(comments, ({ one }) => ({
+  post: one(posts, {
+    fields: [comments.postId],
+    references: [posts.id],
+  }),
+
+  user: one(users, {
+    fields: [comments.userId],
+    references: [users.id],
   }),
 }));

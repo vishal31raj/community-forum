@@ -1,11 +1,38 @@
 import { desc, and, count, eq, isNull, sql } from "drizzle-orm";
 
 import { db } from "../config/database";
+
 import { posts } from "../db/schema/post.schema";
 import { savedPosts } from "../db/schema/saved-post.schema";
+import { postLikes } from "../db/schema/post-like.schema";
+import { comments } from "../db/schema/comment.schema";
+import { users } from "../db/schema/user.schema";
+import { courses } from "../db/schema/course.schema";
+
+export async function createPost(data: {
+  userId: number;
+  courseId: number;
+  title: string;
+  body: string;
+}) {
+  const [post] = await db
+    .insert(posts)
+    .values({
+      userId: data.userId,
+      courseId: data.courseId,
+      title: data.title,
+      body: data.body,
+    })
+    .returning();
+
+  return post;
+}
 
 export async function findPostById(id: number) {
-  const [post] = await db.select().from(posts).where(eq(posts.id, id));
+  const [post] = await db
+    .select()
+    .from(posts)
+    .where(and(eq(posts.id, id), isNull(posts.deletedAt)));
 
   return post ?? null;
 }
@@ -18,7 +45,7 @@ export async function getPostsByCourse(
   return db
     .select()
     .from(posts)
-    .where(eq(posts.courseId, courseId))
+    .where(and(eq(posts.courseId, courseId), isNull(posts.deletedAt)))
     .orderBy(desc(posts.createdAt))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
@@ -30,7 +57,7 @@ export async function countPosts(courseId: number) {
       count: count(),
     })
     .from(posts)
-    .where(eq(posts.courseId, courseId));
+    .where(and(eq(posts.courseId, courseId), isNull(posts.deletedAt)));
 
   return result.count;
 }
@@ -44,11 +71,43 @@ export async function getCourseFeed(
   return db
     .select({
       id: posts.id,
+
       title: posts.title,
+
       body: posts.body,
+
       createdAt: posts.createdAt,
 
-      savesCount: count(savedPosts.id),
+      author: {
+        id: users.id,
+        name: users.name,
+      },
+
+      likesCount: sql<number>`
+        (
+          SELECT COUNT(*)
+          FROM post_likes pl
+          WHERE pl.post_id = ${posts.id}
+        )
+      `,
+
+      commentsCount: sql<number>`
+        (
+          SELECT COUNT(*)
+          FROM comments c
+          WHERE c.post_id = ${posts.id}
+        )
+      `,
+
+      savesCount: sql<number>`
+        (
+          SELECT COUNT(*)
+          FROM saved_posts sp
+          WHERE
+            sp.post_id = ${posts.id}
+            AND sp.deleted_at IS NULL
+        )
+      `,
 
       hasSaved: sql<boolean>`
         EXISTS (
@@ -60,24 +119,115 @@ export async function getCourseFeed(
             AND sp.deleted_at IS NULL
         )
       `,
+
+      hasLiked: sql<boolean>`
+        EXISTS (
+          SELECT 1
+          FROM post_likes pl
+          WHERE
+            pl.post_id = ${posts.id}
+            AND pl.user_id = ${userId}
+        )
+      `,
     })
     .from(posts)
-    .leftJoin(
-      savedPosts,
-      and(eq(savedPosts.postId, posts.id), isNull(savedPosts.deletedAt)),
-    )
-    .where(eq(posts.courseId, courseId))
-    .groupBy(posts.id)
+    .innerJoin(users, eq(users.id, posts.userId))
+    .where(and(eq(posts.courseId, courseId), isNull(posts.deletedAt)))
     .orderBy(desc(posts.createdAt))
     .limit(pageSize)
     .offset((page - 1) * pageSize);
 }
 
-export async function deletePost(postId: number) {
+export async function deletePost(postId: number, userId: number) {
   const [post] = await db
-    .delete(posts)
-    .where(eq(posts.id, postId))
+    .update(posts)
+
+    .set({
+      deletedAt: new Date(),
+    })
+
+    .where(
+      and(
+        eq(posts.id, postId),
+        eq(posts.userId, userId),
+        isNull(posts.deletedAt),
+      ),
+    )
+
     .returning();
 
-  return post;
+  return post ?? null;
+}
+
+export async function getPostById(postId: number, userId: number) {
+  const [post] = await db
+    .select({
+      id: posts.id,
+      title: posts.title,
+      body: posts.body,
+      createdAt: posts.createdAt,
+
+      course: {
+        id: courses.id,
+        title: courses.title,
+      },
+
+      author: {
+        id: users.id,
+        name: users.name,
+      },
+
+      likesCount: sql<number>`
+        (
+          SELECT COUNT(*)
+          FROM post_likes pl
+          WHERE pl.post_id = ${posts.id}
+        )
+      `,
+
+      commentsCount: sql<number>`
+        (
+          SELECT COUNT(*)
+          FROM comments c
+          WHERE c.post_id = ${posts.id}
+        )
+      `,
+
+      savesCount: sql<number>`
+        (
+          SELECT COUNT(*)
+          FROM saved_posts sp
+          WHERE
+            sp.post_id = ${posts.id}
+            AND sp.deleted_at IS NULL
+        )
+      `,
+
+      hasSaved: sql<boolean>`
+        EXISTS (
+          SELECT 1
+          FROM saved_posts sp
+          WHERE
+            sp.post_id = ${posts.id}
+            AND sp.user_id = ${userId}
+            AND sp.deleted_at IS NULL
+        )
+      `,
+
+      hasLiked: sql<boolean>`
+        EXISTS (
+          SELECT 1
+          FROM post_likes pl
+          WHERE
+            pl.post_id = ${posts.id}
+            AND pl.user_id = ${userId}
+        )
+      `,
+    })
+    .from(posts)
+    .innerJoin(users, eq(posts.userId, users.id))
+    .innerJoin(courses, eq(posts.courseId, courses.id))
+    .where(and(eq(posts.id, postId), isNull(posts.deletedAt)));
+
+  return post ?? null;
 }

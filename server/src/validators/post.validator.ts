@@ -41,3 +41,24 @@ export const deletePostSchema = z.object({
     postId: z.coerce.number().int().positive(),
   }),
 });
+
+export const createPostSchema = z.object({
+  body: z.object({
+    courseId: z.number().int().positive(),
+    title: z.string().min(5).max(255),
+    body: z.string().min(10),
+  }),
+  params: z.object({}),
+  query: z.object({}),
+});
+
+export const getPostSchema = z.object({
+  params: z.object({
+    postId: z.coerce.number().positive(),
+  }),
+
+  query: z.object({}),
+
+  body: z.object({}),
+});
+

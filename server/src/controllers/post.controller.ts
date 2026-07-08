@@ -1,9 +1,30 @@
 import { Request, Response, NextFunction } from "express";
 
 import {
+  createPostService,
   deletePostService,
   getCourseFeedService,
+  getPostService,
 } from "../services/post.service";
+
+export async function createPost(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    const data = req.body;
+    const user = req.user!;
+    const post = await createPostService(user.id, user.role, data);
+
+    res.status(201).json({
+      message: "Post created successfully",
+      data: post,
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 
 export async function getCourseFeed(
   req: Request,
@@ -38,7 +59,7 @@ export async function deletePost(
   try {
     const { postId } = req.params;
 
-    await deletePostService(req.user!.role, Number(postId));
+    await deletePostService(req.user!.id, req.user!.role, Number(postId));
 
     res.json({
       success: true,
@@ -47,4 +68,14 @@ export async function deletePost(
   } catch (err) {
     next(err);
   }
+}
+
+export async function getPost(req: Request, res: Response) {
+  const { id, role } = req.user!;
+
+  const postId = Number(req.params.postId);
+
+  const post = await getPostService(id, role, postId);
+
+  res.json(post);
 }

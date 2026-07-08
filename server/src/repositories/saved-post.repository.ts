@@ -3,6 +3,7 @@ import { and, desc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../config/database";
 import { savedPosts } from "../db/schema/saved-post.schema";
 import { posts } from "../db/schema/post.schema";
+import { users } from "../db/schema/user.schema";
 
 export async function findSavedPost(userId: number, postId: number) {
   const [savedPost] = await db
@@ -83,23 +84,59 @@ export async function getSavedPosts(
   return db
     .select({
       id: posts.id,
+
       title: posts.title,
+
       body: posts.body,
+
       createdAt: posts.createdAt,
+
+      author: {
+        id: users.id,
+        name: users.name,
+      },
+
+      likesCount: sql<number>`
+        (
+          SELECT COUNT(*)
+          FROM post_likes pl
+          WHERE pl.post_id = ${posts.id}
+        )
+      `,
+
+      commentsCount: sql<number>`
+        (
+          SELECT COUNT(*)
+          FROM comments c
+          WHERE c.post_id = ${posts.id}
+        )
+      `,
 
       savesCount: sql<number>`
         (
           SELECT COUNT(*)
           FROM saved_posts sp
-          WHERE sp.post_id = ${posts.id}
-          AND sp.deleted_at IS NULL
+          WHERE
+            sp.post_id = ${posts.id}
+            AND sp.deleted_at IS NULL
         )
       `,
 
       hasSaved: sql<boolean>`true`,
+
+      hasLiked: sql<boolean>`
+        EXISTS (
+          SELECT 1
+          FROM post_likes pl
+          WHERE
+            pl.post_id = ${posts.id}
+            AND pl.user_id = ${userId}
+        )
+      `,
     })
     .from(savedPosts)
     .innerJoin(posts, eq(savedPosts.postId, posts.id))
+    .innerJoin(users, eq(posts.userId, users.id))
     .where(
       and(
         eq(savedPosts.userId, userId),

@@ -6,7 +6,13 @@ export interface Post {
   body: string;
   createdAt: string;
   savesCount: number;
+  likesCount: number;
+  commentsCount: number;
   hasSaved: boolean;
+  author: {
+    id: Number;
+    name: String;
+  };
 }
 
 export interface PaginatedResponse<T> {

@@ -37,20 +37,24 @@ export default function SavedPostsPage() {
   } else if (data.length === 0) {
     content = <p className="text-gray-500">No saved posts.</p>;
   } else {
-    content = data.map((post: Post) => (
-      <PostCard
-        key={post.id}
-        post={post}
-        action={
-          <Button
-            loading={loadingPostId === post.id}
-            onClick={() => handleUnsave(post.id)}
-          >
-            Unsave
-          </Button>
-        }
-      />
-    ));
+    content = (
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {data.map((post: Post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            action={
+              <Button
+                loading={loadingPostId === post.id}
+                onClick={() => handleUnsave(post.id)}
+              >
+                Unsave
+              </Button>
+            }
+          />
+        ))}
+      </div>
+    );
   }
 
   return (

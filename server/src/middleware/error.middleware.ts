@@ -7,7 +7,7 @@ export function errorHandler(
   res: Response,
   next: NextFunction,
 ) {
-//   console.error(err);
+  console.error(err);
 
   // Zod validation error
   if (err instanceof ZodError) {

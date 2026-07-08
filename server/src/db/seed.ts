@@ -8,6 +8,8 @@ import { courses } from "./schema/course.schema";
 import { enrollments } from "./schema/enrollment.schema";
 import { posts } from "./schema/post.schema";
 import { savedPosts } from "./schema/saved-post.schema";
+import { postLikes } from "./schema/post-like.schema";
+import { comments } from "./schema/comment.schema";
 
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -23,16 +25,26 @@ async function seed() {
   try {
     console.log("🌱 Seeding database...");
 
-    // Delete existing data (respect FK order)
+    // Delete order (child -> parent)
+
+    await db.delete(comments);
+
+    await db.delete(postLikes);
+
     await db.delete(savedPosts);
+
     await db.delete(posts);
+
     await db.delete(enrollments);
+
     await db.delete(courses);
+
     await db.delete(users);
 
-    console.log("🗑️ Existing data deleted");
+    console.log("🗑 Existing data removed");
 
-    // Users
+    // USERS
+
     const insertedUsers = await db
       .insert(users)
       .values([
@@ -40,14 +52,17 @@ async function seed() {
           name: "Alice",
           role: "student",
         },
+
         {
           name: "Bob",
           role: "student",
         },
+
         {
           name: "Charlie",
           role: "student",
         },
+
         {
           name: "Admin",
           role: "moderator",
@@ -55,77 +70,173 @@ async function seed() {
       ])
       .returning();
 
-    // Courses
+    const alice = insertedUsers[0];
+    const bob = insertedUsers[1];
+    const charlie = insertedUsers[2];
+
+    // COURSES
+
     const insertedCourses = await db
       .insert(courses)
       .values([
         {
           title: "React Fundamentals",
         },
+
         {
           title: "Node.js Backend",
         },
       ])
       .returning();
 
-    // Enrollments
+    const reactCourse = insertedCourses[0];
+    const nodeCourse = insertedCourses[1];
+
+    // ENROLLMENTS
+
     await db.insert(enrollments).values([
       {
-        userId: insertedUsers[0].id,
-        courseId: insertedCourses[0].id,
+        userId: alice.id,
+        courseId: reactCourse.id,
       },
+
       {
-        userId: insertedUsers[1].id,
-        courseId: insertedCourses[1].id,
+        userId: bob.id,
+        courseId: nodeCourse.id,
       },
+
       {
-        userId: insertedUsers[2].id,
-        courseId: insertedCourses[0].id,
+        userId: charlie.id,
+        courseId: reactCourse.id,
       },
+
       {
-        userId: insertedUsers[2].id,
-        courseId: insertedCourses[1].id,
+        userId: charlie.id,
+        courseId: nodeCourse.id,
       },
     ]);
 
-    // Posts
-    await db.insert(posts).values([
+    // POSTS
+
+    const insertedPosts = await db
+      .insert(posts)
+      .values([
+        {
+          userId: alice.id,
+
+          courseId: reactCourse.id,
+
+          title: "Understanding React Hooks",
+
+          body: "Learn how useState, useEffect and custom hooks work.",
+
+          views: 20,
+        },
+
+        {
+          userId: bob.id,
+
+          courseId: reactCourse.id,
+
+          title: "React Context API",
+
+          body: "Share state without prop drilling.",
+
+          views: 10,
+        },
+
+        {
+          userId: charlie.id,
+
+          courseId: nodeCourse.id,
+
+          title: "Express Middleware",
+
+          body: "Understanding middleware execution order.",
+
+          views: 15,
+        },
+
+        {
+          userId: bob.id,
+
+          courseId: nodeCourse.id,
+
+          title: "JWT Authentication",
+
+          body: "Secure REST APIs using JSON Web Tokens.",
+
+          views: 30,
+        },
+      ])
+      .returning();
+
+    const post1 = insertedPosts[0];
+    const post2 = insertedPosts[1];
+    const post3 = insertedPosts[2];
+
+    // LIKES
+
+    await db.insert(postLikes).values([
       {
-        courseId: insertedCourses[0].id,
-        title: "Understanding React Hooks",
-        body: "Learn how useState, useEffect and custom hooks work.",
+        postId: post1.id,
+        userId: bob.id,
       },
+
       {
-        courseId: insertedCourses[0].id,
-        title: "React Context API",
-        body: "Share state across components without prop drilling.",
+        postId: post1.id,
+        userId: charlie.id,
       },
+
       {
-        courseId: insertedCourses[0].id,
-        title: "React Query Basics",
-        body: "Fetching and caching server state with TanStack Query.",
+        postId: post2.id,
+        userId: alice.id,
       },
+    ]);
+
+    // COMMENTS
+
+    await db.insert(comments).values([
       {
-        courseId: insertedCourses[1].id,
-        title: "Express Middleware",
-        body: "Understanding middleware execution order in Express.",
+        postId: post1.id,
+        userId: bob.id,
+        body: "Great explanation!",
       },
+
       {
-        courseId: insertedCourses[1].id,
-        title: "JWT Authentication",
-        body: "Secure REST APIs using JSON Web Tokens.",
+        postId: post1.id,
+        userId: charlie.id,
+        body: "This helped me understand hooks.",
       },
+
       {
-        courseId: insertedCourses[1].id,
-        title: "Introduction to Drizzle ORM",
-        body: "Getting started with Drizzle ORM and PostgreSQL.",
+        postId: post3.id,
+        userId: alice.id,
+        body: "Middleware order was confusing before.",
+      },
+    ]);
+
+    // SAVED POSTS
+
+    await db.insert(savedPosts).values([
+      {
+        postId: post1.id,
+        userId: bob.id,
+      },
+
+      {
+        postId: post3.id,
+        userId: alice.id,
       },
     ]);
 
     console.log("✅ Database seeded successfully");
   } catch (error) {
-    console.error("❌ Failed to seed database");
+    console.error("❌ Seed failed");
+
     console.error(error);
+
+    process.exit(1);
   } finally {
     await pool.end();
   }
