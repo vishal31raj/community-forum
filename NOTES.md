@@ -25,6 +25,7 @@ npm install
 Create a `.env` file inside the `server` directory.
 
 ```env
+PORT=3000
 DB_HOST=localhost
 DB_PORT=5432
 DB_USER=postgres
@@ -39,7 +40,7 @@ DB_NAME=community_forum
 From the `server` directory:
 
 ```bash
-npm run migrate
+npm run db:migrate
 ```
 
 ---
@@ -47,7 +48,7 @@ npm run migrate
 ## Seed sample data
 
 ```bash
-npm run seed
+npm run db:seed
 ```
 
 This creates:
@@ -65,6 +66,7 @@ This creates:
 ## Start the API
 
 ```bash
+cd server
 npm run dev
 ```
 
@@ -96,7 +98,7 @@ http://localhost:5173
 From the server:
 
 ```bash
-npm test
+npm run test
 ```
 
 Current test coverage includes:
@@ -127,7 +129,7 @@ Students are related to courses through the `Enrollments` table, allowing the fe
 
 Posts belong to both:
 
-- an author
+- a user
 - a course
 
 This allows permissions to be enforced at the course level.
